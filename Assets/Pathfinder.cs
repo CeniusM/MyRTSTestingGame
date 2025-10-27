@@ -326,6 +326,8 @@ namespace AStarPathfindingMaze
             // This should probaly be done with more advanced Bresenham's line algorithm
             // so that the units radius also is taken into account, so this can not be done
             // in this pathfinder directly since we dont have either the units radius or floats to work with
+            // Can case two parralel lines from the first point to the second point with an offset of the radius to either side of the unit
+            // and check that none of thes lines intesects with a wall
 
             return path;
         }

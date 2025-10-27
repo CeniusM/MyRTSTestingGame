@@ -82,7 +82,7 @@ public abstract class BaseUnit : MonoBehaviour
                     CurrentPath.Dequeue();
                 }
 
-                DebugCurrentPath();
+                //DebugCurrentPath();
 
                 break;
             case CommandType.Stop:
@@ -115,14 +115,4 @@ public abstract class BaseUnit : MonoBehaviour
             Debug.DrawLine(path[i], path[i + 1], Color.red, 0.1f, false);
         }
     }
-
-    //public void OnSelected()
-    //{
-
-    //}
-
-    //public void OnDeselected()
-    //{
-
-    //}
 }

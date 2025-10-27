@@ -16,6 +16,8 @@ All effects are made child objects so the unity hierarchy is not too cluttered.
 
 */
 
+// Should move all the effects to the Update loop rather than FixedUpdate through out the project for consistency
+// And keep the logic itself in FixedUpdate
 public class EffectsRenderer : MonoBehaviour
 {
     private Material _defaultMaterial;
@@ -68,7 +70,7 @@ public class EffectsRenderer : MonoBehaviour
         lr.positionCount = 2;
         lr.SetPosition(0, new Vector3(from.x, from.y, 0));
         lr.SetPosition(1, new Vector3(to.x, to.y, 0));
-        lr.sortingOrder = 10; // Make sure it's visible above ground
+        lr.sortingOrder = 11; // Make sure it's visible above ground
 
         _activeEffects.Add(lineObj);
     }
@@ -78,6 +80,7 @@ public class EffectsRenderer : MonoBehaviour
         DrawSquare(center, new Vector2(size, size), color);
     }
 
+    // No working sadly
     public void DrawSquare(Vector2 center, Vector2 size, Color color)
     {
         GameObject squareObject = new GameObject("Effect_Square");
@@ -105,7 +108,7 @@ public class EffectsRenderer : MonoBehaviour
         DrawLine(NW, NE, color, thickness);
         DrawLine(NE, SE, color, thickness);
         DrawLine(SE, SW, color, thickness);
-        DrawLine(SW, SE, color, thickness);
+        DrawLine(SW, NW, color, thickness);
     }
 
     //public void DrawCircle(Vector2 p, float radius, Color color)
