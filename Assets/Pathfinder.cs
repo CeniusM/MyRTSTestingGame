@@ -198,6 +198,7 @@ namespace AStarPathfindingMaze
     }
 
     // Should be remade to handle float positions and negative coordinates, so map from -50,-50 to 50,50 is possible
+    // Currently have a problem where the units cut through the cornors
     public class PathFinder
     {
         public readonly int Width;
@@ -254,6 +255,11 @@ namespace AStarPathfindingMaze
                 return new List<Coord>();
             }
 
+            if (start.x == end.x && start.y == end.y)
+            {
+                return new List<Coord>() { end };
+            }
+
             _end = end.y * Width + end.x;
             _endX = end.x;
             _endY = end.y;
@@ -279,7 +285,7 @@ namespace AStarPathfindingMaze
                 lastPoint = squareLookedAt;
             }
 
-            var path= GetSearchedPath(start.y * Width + start.x, lastPoint);
+            var path = GetSearchedPath(start.y * Width + start.x, lastPoint);
 
             if (doSmoothingParse)
                 return SmoothPath(path);

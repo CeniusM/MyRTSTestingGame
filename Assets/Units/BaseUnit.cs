@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using System.Linq;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class UnitAttributes
@@ -19,14 +21,25 @@ public abstract class BaseUnit : MonoBehaviour
 {
     public readonly CommandQueue commandQueue = new CommandQueue();
     public bool Dead;
+    public UnitPathfinder unitPathfinder;
 
     public UnitAttributes Attributes;
+
+    public Queue<Vector2> CurrentPath = null;
+    // Fall back to command target if no path points left
+    public Vector2 CurrentTarget => CurrentPath.Count != 0 ? CurrentPath.Peek() : commandQueue.ActiveCommand.TargetPos.Value;
 
     public abstract void MoveTowards(Vector2 destination);
 
     public void AssignCommand(BaseCommand command)
     {
         commandQueue.AssignCommand(command);
+
+        // A bit janky, but gotta handle path resets somewhere
+        if (command.Type == CommandType.Move && !command.QueueThis)
+        {
+            CurrentPath = null;
+        }
     }
 
     // Try and finish the current command, else, dequeue and execute next command
@@ -39,18 +52,67 @@ public abstract class BaseUnit : MonoBehaviour
         switch (command.Type)
         {
             case CommandType.Move:
-                // Action
-                MoveTowards(command.TargetPos.Value);
+                if (CurrentPath == null)
+                {
+                    CurrentPath = new Queue<Vector2>(unitPathfinder.GetPath(this));
+                }
 
-                // Test if done
-                if (Vector2.Distance(transform.position, command.TargetPos.Value) < 0.1)
-                    commandQueue.CommandFinished();
+                if (CurrentPath.Count == 0)
+                {
+                    // Should be finished now
+                    // Check if we have reached the final target
+                    if (IsAtPoint(command.TargetPos.Value))
+                    {
+                        commandQueue.CommandFinished();
+                        CurrentPath = null;
+                        break;
+                    }
+                    //else
+                    //{
+                    //    throw new System.Exception("Path exhausted but not at target");
+                    //}
+                }
+
+                // Move to target
+                MoveTowards(CurrentTarget);
+
+                // Check if finished a point in the path
+                if (IsAtPoint(CurrentTarget))
+                {
+                    CurrentPath.Dequeue();
+                }
+
+                DebugCurrentPath();
+
                 break;
             case CommandType.Stop:
                 commandQueue.StopCommands();
                 break;
             default:
                 break;
+        }
+    }
+
+    // Could slowly expand this threshold based on unit radius if it is stuck up against another unit
+    public bool IsAtPoint(Vector2 target)
+    {
+        return Vector2.Distance(transform.position, target) < Attributes.Radius * 0.8f;
+    }
+
+    private void DebugCurrentPath()
+    {
+        if (CurrentPath == null || CurrentPath.Count == 0)
+            return;
+
+        var path = CurrentPath.ToArray();
+
+        // Debug their path
+        Debug.DrawLine(transform.position, path[0], Color.red, 0.1f, false);
+
+        // Draw between subsequent targets
+        for (int i = 0; i < path.Length - 1; i++)
+        {
+            Debug.DrawLine(path[i], path[i + 1], Color.red, 0.1f, false);
         }
     }
 

@@ -62,7 +62,7 @@ public class PathfinderDebugger : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
         // Fill the pathfinder grid with all the objects in the Grid->Nonwalkable tilemap
         UpdatePathFinderMap();

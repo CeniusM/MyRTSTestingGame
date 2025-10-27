@@ -19,6 +19,8 @@ public class MyUnit : BaseUnit
 
         spriteRenderer = gameObject.GetComponent<SpriteRenderer>();
         playerData = FindAnyObjectByType<PlayerData>();
+
+        unitPathfinder = FindAnyObjectByType<UnitPathfinder>();
     }
 
     // Update is called once per frame, only for graphics
