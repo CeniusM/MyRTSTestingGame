@@ -82,11 +82,10 @@ public class PathfinderDebugger : MonoBehaviour
         Timer sw = Timer.StartNew();
         List<Coord> path = Pathfinder.SearchPath(
             start: new Coord() { x = (int)Mathf.Floor(start.x), y = (int)Mathf.Floor(start.y) },
-            end: new Coord() { x = (int)Mathf.Floor(end.x), y = (int)Mathf.Floor(end.y) },
-            doSmoothingParse: true
+            end: new Coord() { x = (int)Mathf.Floor(end.x), y = (int)Mathf.Floor(end.y) }
         );
         double timeMs = sw.Elapsed.TotalMilliseconds;
-        Debug.Log("Pathfinder timer: " + timeMs + " ms, Path length: " + path.Count);
+        //Debug.Log("Pathfinder timer: " + timeMs + " ms, Path length: " + path.Count);
 
         List<Vector2> vPath = path.Select(c => new Vector2(c.x, c.y) - halfSize).ToList();
 

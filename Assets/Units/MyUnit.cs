@@ -5,7 +5,7 @@ public class MyUnit : BaseUnit
     public override void MoveTowards(Vector2 destination)
     {
         transform.position = Vector2.MoveTowards(transform.position, destination, Attributes.MoveSpeed * Time.deltaTime);
-        Debug.Log($"Unit moved to {destination}");
+        //Debug.Log($"Unit moved to {destination}");
     }
 
     private SpriteRenderer spriteRenderer;

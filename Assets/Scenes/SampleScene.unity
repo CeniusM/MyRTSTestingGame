@@ -10188,11 +10188,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 5926944836351258742, guid: db9189e04beb6fe48a13b487bfc6cd73, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -1.86
+      value: -6.59
       objectReference: {fileID: 0}
     - target: {fileID: 5926944836351258742, guid: db9189e04beb6fe48a13b487bfc6cd73, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -3.03
+      value: -3.4
       objectReference: {fileID: 0}
     - target: {fileID: 5926944836351258742, guid: db9189e04beb6fe48a13b487bfc6cd73, type: 3}
       propertyPath: m_LocalPosition.z
@@ -10361,7 +10361,7 @@ Transform:
   m_GameObject: {fileID: 1103766095}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -5.202551, y: -1.9783155, z: 0}
+  m_LocalPosition: {x: 6.4, y: 7.73, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -10542,8 +10542,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   size: 200
-  DoSmoothingParse: 1
   CanMoveDiagonallyThroughCornors: 0
+  RemoveRedundantCornors: 1
+  DoSmoothingParse: 1
 --- !u!4 &1652063535
 Transform:
   m_ObjectHideFlags: 0
