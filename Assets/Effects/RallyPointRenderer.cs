@@ -6,7 +6,7 @@ public class RallyPointRenderer : MonoBehaviour
     private PlayerData playerData;
     private List<LineRenderer> activeLines = new List<LineRenderer>();
     [SerializeField] private Material lineMaterial;
-    [SerializeField] private float lineWidth = 0.05f;
+    [SerializeField] private float lineWidth = 0.1f;
     [SerializeField] private GameObject arrowPrefab; // Optional for arrows
 
     void Start()
@@ -24,18 +24,45 @@ public class RallyPointRenderer : MonoBehaviour
             if (moveCommands.Length == 0)
                 continue;
 
-            // Draw line from unit to first target
-            DrawVisibleLine(unit.transform.position, moveCommands[0].TargetPos.Value);
+            // Draw line from unit to first target with its path
+            if (unit.CurrentPath != null && unit.CurrentPath.Count > 0)
+            {
+                Vector2 previousPoint = unit.transform.position;
+                foreach (var pathPoint in unit.CurrentPath)
+                {
+                    DrawVisibleLine(previousPoint, pathPoint, Color.blue);
+                    DrawWaypoint(pathPoint, 0.2f, Color.red);
+                    previousPoint = pathPoint;
+                }
+                DrawVisibleLine(previousPoint, moveCommands[0].TargetPos.Value, Color.blue);
+            }
+            else
+            {
+                DrawVisibleLine(unit.transform.position, moveCommands[0].TargetPos.Value, Color.green);
+            }
 
             // Draw between subsequent targets
             for (int i = 0; i < moveCommands.Length - 1; i++)
             {
-                DrawVisibleLine(moveCommands[i].TargetPos.Value, moveCommands[i + 1].TargetPos.Value);
+                DrawVisibleLine(moveCommands[i].TargetPos.Value, moveCommands[i + 1].TargetPos.Value, Color.green);
+                DrawWaypoint(moveCommands[i + 1].TargetPos.Value, 0.2f, Color.red);
             }
         }
     }
 
-    private void DrawVisibleLine(Vector2 from, Vector2 to)
+    private void DrawWaypoint(Vector2 p, float size, Color color)
+    {
+        Vector2 NW = new Vector2(p.x - size / 2, p.y + size / 2);
+        Vector2 NE = new Vector2(p.x + size / 2, p.y + size / 2);
+        Vector2 SW = new Vector2(p.x - size / 2, p.y - size / 2);
+        Vector2 SE = new Vector2(p.x + size / 2, p.y - size / 2);
+        DrawVisibleLine(NW, NE, color);
+        DrawVisibleLine(NE, SE, color);
+        DrawVisibleLine(SE, SW, color);
+        DrawVisibleLine(SW, SE, color);
+    }
+
+    private void DrawVisibleLine(Vector2 from, Vector2 to, Color lineColor)
     {
         GameObject lineObj = new GameObject("RallyLine");
         LineRenderer lr = lineObj.AddComponent<LineRenderer>();
@@ -44,7 +71,7 @@ public class RallyPointRenderer : MonoBehaviour
         lr.positionCount = 2;
         lr.SetPosition(0, from);
         lr.SetPosition(1, to);
-        lr.startColor = lr.endColor = Color.green;
+        lr.startColor = lr.endColor = lineColor;
         lr.sortingOrder = 10; // Make sure it's visible above ground
 
         activeLines.Add(lr);

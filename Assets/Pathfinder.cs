@@ -16,6 +16,11 @@ namespace AStarPathfindingMaze
             this.x = x;
             this.y = y;
         }
+
+        public bool Equals(Coord other)
+        {
+            return x == other.x && y == other.y;
+        }
     }
 
     public struct Node
@@ -201,6 +206,8 @@ namespace AStarPathfindingMaze
     // Currently have a problem where the units cut through the cornors
     public class PathFinder
     {
+        public bool CanMoveDiagonallyThroughCornors = false;
+
         public readonly int Width;
         public readonly int Height;
 
@@ -297,7 +304,30 @@ namespace AStarPathfindingMaze
         // Then it will try to cut corners by checking if a straight line between two points is walkable
         private List<Coord> SmoothPath(List<Coord> path)
         {
-            throw new NotImplementedException();
+            for (int i = 1; i < path.Count - 1; i++)
+            {
+                Coord prev = path[i - 1];
+                Coord current = path[i];
+                Coord next = path[i + 1];
+
+                // Check if current is in a straight line between prev and next
+                if ((prev.x == current.x && current.x == next.x) ||
+                    (prev.y == current.y && current.y == next.y) ||
+                    (Math.Abs(prev.x - current.x) == Math.Abs(prev.y - current.y) &&
+                     Math.Abs(current.x - next.x) == Math.Abs(current.y - next.y) &&
+                     (next.x - current.x) * (current.y - prev.y) == (next.y - current.y) * (current.x - prev.x)))
+                {
+                    path.RemoveAt(i);
+                    i--;
+                }
+            }
+
+            // Still need to implement corner cutting
+            // This should probaly be done with more advanced Bresenham's line algorithm
+            // so that the units radius also is taken into account, so this can not be done
+            // in this pathfinder directly since we dont have either the units radius or floats to work with
+
+            return path;
         }
 
         private NodeIndex Step()
@@ -334,6 +364,18 @@ namespace AStarPathfindingMaze
                     bool isDiagonal = xOffset != 0 && yOffset != 0;
 
                     int moveCost = isDiagonal ? DiagonalCost : StraightCost;
+
+                    if (isDiagonal && !CanMoveDiagonallyThroughCornors)
+                    {
+                        // Check if moving diagonally would cut through a corner
+                        bool corner1Blocked = Map[nodeY, x];
+                        bool corner2Blocked = Map[y, nodeX];
+
+                        if (corner1Blocked || corner2Blocked)
+                        {
+                            continue;
+                        }
+                    }
 
                     Node nextNode = _nodes[nextIndex];
 
@@ -384,6 +426,7 @@ namespace AStarPathfindingMaze
                 StraightCost * (high - low);
         }
 
+        // Here we should remove the nodes that are part of straight lines
         private List<Coord> GetSearchedPath(NodeIndex mazeStart, NodeIndex from)
         {
             Coord toCoord(NodeIndex index) => new Coord(index % Width, index / Width);

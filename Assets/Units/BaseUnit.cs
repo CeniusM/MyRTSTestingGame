@@ -96,7 +96,7 @@ public abstract class BaseUnit : MonoBehaviour
     // Could slowly expand this threshold based on unit radius if it is stuck up against another unit
     public bool IsAtPoint(Vector2 target)
     {
-        return Vector2.Distance(transform.position, target) < Attributes.Radius * 0.8f;
+        return Vector2.Distance(transform.position, target) < Attributes.Radius * 0.5f;
     }
 
     private void DebugCurrentPath()

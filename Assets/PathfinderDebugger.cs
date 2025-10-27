@@ -64,6 +64,9 @@ public class PathfinderDebugger : MonoBehaviour
     // Update is called once per frame
     void FixedUpdate()
     {
+        if (!On)
+            return;
+
         // Fill the pathfinder grid with all the objects in the Grid->Nonwalkable tilemap
         UpdatePathFinderMap();
 
@@ -80,7 +83,7 @@ public class PathfinderDebugger : MonoBehaviour
         List<Coord> path = Pathfinder.SearchPath(
             start: new Coord() { x = (int)Mathf.Floor(start.x), y = (int)Mathf.Floor(start.y) },
             end: new Coord() { x = (int)Mathf.Floor(end.x), y = (int)Mathf.Floor(end.y) },
-            doSmoothingParse: false
+            doSmoothingParse: true
         );
         double timeMs = sw.Elapsed.TotalMilliseconds;
         Debug.Log("Pathfinder timer: " + timeMs + " ms, Path length: " + path.Count);
@@ -93,6 +96,19 @@ public class PathfinderDebugger : MonoBehaviour
         for (int i = 0; i < vPath.Count - 1; i++)
         {
             Debug.DrawLine(vPath[i] + offset, vPath[i + 1] + offset, Color.red);
+            DrawWaypoint(vPath[i+1] + offset, 0.5f, Color.blue);
         }
+    }
+
+    private void DrawWaypoint(Vector2 p, float size, Color color)
+    {
+        Vector2 NW = new Vector2(p.x - size / 2, p.y + size / 2);
+        Vector2 NE = new Vector2(p.x + size / 2, p.y + size / 2);
+        Vector2 SW = new Vector2(p.x - size / 2, p.y - size / 2);
+        Vector2 SE = new Vector2(p.x + size / 2, p.y - size / 2);
+        Debug.DrawLine(NW, NE, color, 0.1f, false);
+        Debug.DrawLine(NE, SE, color, 0.1f, false);
+        Debug.DrawLine(SE, SW, color, 0.1f, false);
+        Debug.DrawLine(SW, SE, color, 0.1f, false);
     }
 }

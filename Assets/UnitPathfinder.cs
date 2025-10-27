@@ -9,6 +9,8 @@ public class UnitPathfinder : MonoBehaviour
 {
     public PathFinder pathFinder;
     public int size;
+    public bool DoSmoothingParse;
+    public bool CanMoveDiagonallyThroughCornors;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -60,6 +62,8 @@ public class UnitPathfinder : MonoBehaviour
     // Only returns a list of coordinates for the path, if the units active command is a move command
     public List<Vector2> GetPath(BaseUnit unit)
     {
+        pathFinder.CanMoveDiagonallyThroughCornors = CanMoveDiagonallyThroughCornors;
+
         if (unit.commandQueue.ActiveCommand == null || unit.commandQueue.ActiveCommand.Type != CommandType.Move)
             return new List<Vector2>();
 
@@ -70,8 +74,9 @@ public class UnitPathfinder : MonoBehaviour
         start += halfSize;
         end += halfSize;
         List<Coord> cPath = pathFinder.SearchPath(
-            new Coord { x = (int)Mathf.Floor(start.x), y = (int)Mathf.Floor(start.y) },
-            new Coord { x = (int)Mathf.Floor(end.x), y = (int)Mathf.Floor(end.y) }
+            start: new Coord { x = (int)Mathf.Floor(start.x), y = (int)Mathf.Floor(start.y) },
+            end: new Coord { x = (int)Mathf.Floor(end.x), y = (int)Mathf.Floor(end.y) },
+            doSmoothingParse: DoSmoothingParse
         );
 
         // Offset should later be based on the unit size
@@ -87,7 +92,19 @@ public class UnitPathfinder : MonoBehaviour
         //    Debug.DrawLine(vPath[i] + offset, vPath[i + 1] + offset, Color.red, 0.1f, false);
         //}
 
-        vPath.Add(end - halfSize);// Add the very end
+        // Add the very end, and remove the last point if it is in the same tile as the end
+        if (vPath.Count > 0)
+        {
+            Vector2 lastPathPoint = vPath[vPath.Count - 1];
+            if (Mathf.FloorToInt(lastPathPoint.x) == Mathf.FloorToInt(end.x - halfSize.x) &&
+                Mathf.FloorToInt(lastPathPoint.y) == Mathf.FloorToInt(end.y - halfSize.y))
+            {
+                Debug.Log("Removed last..");
+                vPath.RemoveAt(vPath.Count - 1);
+            }
+        }
+        vPath.Add(end - halfSize);
+
         return vPath;
     }
 }
