@@ -17,6 +17,8 @@ public class UnitAttributes
 }
 
 // This should maybe be the highest called entity, and then have a subclass called BaseUnit and BaseBuilding?
+
+// All unit logic should probaly go to seperate system such that the logic is consistent and predictable for replayability
 public abstract class BaseUnit : MonoBehaviour
 {
     public readonly CommandQueue commandQueue = new CommandQueue();
