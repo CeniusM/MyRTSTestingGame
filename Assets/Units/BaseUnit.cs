@@ -54,7 +54,7 @@ public abstract class BaseUnit : MonoBehaviour
             case CommandType.Move:
                 if (CurrentPath == null)
                 {
-                    CurrentPath = new Queue<Vector2>(unitPathfinder.GetPath(this));
+                    CurrentPath = new Queue<Vector2>(unitPathfinder.GetUnitPath(this));
                 }
 
                 if (CurrentPath.Count == 0)
@@ -77,7 +77,7 @@ public abstract class BaseUnit : MonoBehaviour
                 MoveTowards(CurrentTarget);
 
                 // Check if finished a point in the path
-                if (IsAtPoint(CurrentTarget))
+                if (IsAtPoint(CurrentTarget) && CurrentPath.Count > 0)
                 {
                     CurrentPath.Dequeue();
                 }
@@ -93,7 +93,7 @@ public abstract class BaseUnit : MonoBehaviour
         }
     }
 
-    // Could slowly expand this threshold based on unit radius if it is stuck up against another unit
+    // Could slowly expand this threshold based on unit radius if it is stuck up against another unit or building
     public bool IsAtPoint(Vector2 target)
     {
         return Vector2.Distance(transform.position, target) < Attributes.Radius * 0.5f;

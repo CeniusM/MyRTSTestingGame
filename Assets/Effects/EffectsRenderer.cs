@@ -21,8 +21,8 @@ All effects are made child objects so the unity hierarchy is not too cluttered.
 public class EffectsRenderer : MonoBehaviour
 {
     private Material _defaultMaterial;
-    private Texture2D _whiteTexture;
-    private Sprite _squareSprite;
+    [SerializeField] private Sprite _squareSprite; // Just unity's buildin square sprite
+    [SerializeField] private GameObject _squarePrefab;
 
     private List<GameObject> _activeEffects = new List<GameObject>();
 
@@ -30,12 +30,6 @@ public class EffectsRenderer : MonoBehaviour
     void Start()
     {
         _defaultMaterial = new Material(Shader.Find("Sprites/Default"));
-
-        _whiteTexture = new Texture2D(1, 1);
-        _whiteTexture.SetPixel(0, 0, Color.white);
-        _whiteTexture.Apply();
-
-        _squareSprite = Sprite.Create(_whiteTexture, new Rect(0, 0, 1, 1), Vector2.one * 0.5f);
     }
 
     // Updated before all other objects (hopefully) its a bit janky but works for now

@@ -27,7 +27,7 @@ public class RallyPointRenderer : MonoBehaviour
                 foreach (var pathPoint in unit.CurrentPath)
                 {
                     effectsRenderer.DrawLine(previousPoint, pathPoint, Color.red, 0.05f);
-                    effectsRenderer.DrawHollowSquare(pathPoint, 0.2f, 0.1f, Color.magenta);
+                    effectsRenderer.DrawSquare(pathPoint, 0.2f, Color.magenta);
                     previousPoint = pathPoint;
                 }
                 effectsRenderer.DrawLine(previousPoint, moveCommands[0].TargetPos.Value, Color.blue, 0.05f);
@@ -41,7 +41,7 @@ public class RallyPointRenderer : MonoBehaviour
             for (int i = 0; i < moveCommands.Length - 1; i++)
             {
                 effectsRenderer.DrawLine(moveCommands[i].TargetPos.Value, moveCommands[i + 1].TargetPos.Value, Color.yellow, 0.05f);
-                effectsRenderer.DrawHollowSquare(moveCommands[i + 1].TargetPos.Value, 0.2f, 0.1f, Color.magenta);
+                effectsRenderer.DrawSquare(moveCommands[i + 1].TargetPos.Value, 0.2f, Color.magenta);
             }
         }
     }

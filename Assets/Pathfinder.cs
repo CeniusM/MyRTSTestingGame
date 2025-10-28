@@ -206,7 +206,7 @@ namespace AStarPathfindingMaze
     // Currently have a problem where the units cut through the cornors
     public class PathFinder
     {
-        private bool allowMoveDiagonallyThroughCornors = false;
+        private bool blockCornorCutting = false;
 
         public readonly int Width;
         public readonly int Height;
@@ -216,7 +216,7 @@ namespace AStarPathfindingMaze
         // Can also for fun test if it makes a diffrence if we parse multiple units,
         // and increase the map value for where they wanna walk so they walk a bit diffrent paths
         // For when a unit is 2 wide, we can make a temp map and make all 1 gaps solid for that search #_# => ### and #__# => #__#
-        public readonly bool[,] Map;
+        public readonly bool[,] BlockedMap;
 
         private NodeIndex _end;
         private int _endX;
@@ -233,7 +233,7 @@ namespace AStarPathfindingMaze
         {
             Width = width;
             Height = height;
-            Map = new bool[height, width];
+            BlockedMap = new bool[height, width];
             _nodes = new Node[height * width];
             _heap = new NodeHeap(this, Width * Height);
         }
@@ -250,9 +250,9 @@ namespace AStarPathfindingMaze
             }
         }
 
-        public List<Coord> SearchPath(Coord start, Coord end, bool allowMoveDiagonallyThroughCornors = false)
+        public List<Coord> SearchPath(Coord start, Coord end, bool blockCornorCutting = true)
         {
-            this.allowMoveDiagonallyThroughCornors = allowMoveDiagonallyThroughCornors;
+            this.blockCornorCutting = blockCornorCutting;
 
             // ThrowIf()
             if (IsOutside(start.x, start.y) || IsOutside(end.x, end.y))
@@ -323,7 +323,7 @@ namespace AStarPathfindingMaze
 
                     if (IsOutside(x, y))
                         continue;
-                    if (Map[y, x])
+                    if (BlockedMap[y, x])
                         continue;
                     if (_nodes[nextIndex].DONE)
                         continue;
@@ -332,11 +332,11 @@ namespace AStarPathfindingMaze
 
                     int moveCost = isDiagonal ? DiagonalCost : StraightCost;
 
-                    if (isDiagonal && !allowMoveDiagonallyThroughCornors)
+                    if (isDiagonal && blockCornorCutting)
                     {
                         // Check if moving diagonally would cut through a corner
-                        bool corner1Blocked = Map[nodeY, x];
-                        bool corner2Blocked = Map[y, nodeX];
+                        bool corner1Blocked = BlockedMap[nodeY, x];
+                        bool corner2Blocked = BlockedMap[y, nodeX];
 
                         if (corner1Blocked || corner2Blocked)
                         {
@@ -419,7 +419,7 @@ namespace AStarPathfindingMaze
 
         public void SetCellWalkable(int x, int y, bool v)
         {
-            Map[y, x] = !v;
+            BlockedMap[y, x] = !v;
         }
     }
 }
