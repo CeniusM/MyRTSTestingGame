@@ -1,20 +1,19 @@
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
-
-//public class BaseEntityAttributes
-//{
-//    public bool IsBuilding;
-    
-
-//    //List<Attacks>
-//}
 
 public abstract class BaseEntity : MonoBehaviour
 {
+    public GUID id = new GUID();
+
     public bool IsBuilding;
-    //public Attack Attack;
+    public AttackStats AttackStats;
     public Health Health;
-    //public Armour Armour;
+    //public Armour ArmourStats;
+    public int Kills;
+
+    public bool HasAttack => AttackStats != null;
+    public bool IsAlive => !Health.IsDead;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
