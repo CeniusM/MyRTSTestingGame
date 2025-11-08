@@ -5,6 +5,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
+// We dont want to deal with transforming signed map space to unsigned pathfinder map. We just allways have the map x and y from 0->N
 public class UnitPathfinder : MonoBehaviour
 {
     public PathFinder pathFinder;
@@ -55,7 +56,11 @@ public class UnitPathfinder : MonoBehaviour
                 int x = pos.x;
                 int y = pos.y;
 
-                pathFinder.SetCellWalkable(x + (size / 2), y + (size / 2), false);
+                // Probaly needs to transform with the tilemap transform
+                x = (int)(x + nonWalkableTilemap.transform.position.x);
+                y = (int)(y + nonWalkableTilemap.transform.position.y);
+
+                pathFinder.SetCellWalkable(x, y, false);
             }
         }
     }
@@ -77,10 +82,8 @@ public class UnitPathfinder : MonoBehaviour
 
     public List<Vector2> GeneratePath(Vector2 worldStart, Vector2 worldEnd, bool doRemoveRedundantNodes, float offsetMag = 0.5f)
     {
-        Vector2 halfSize = new Vector2(size / 2f, size / 2f);
-
-        Vector2 mapStart = worldStart + halfSize;
-        Vector2 mapEnd = worldEnd + halfSize;
+        Vector2 mapStart = worldStart;
+        Vector2 mapEnd = worldEnd;
 
         List<Coord> cPath = pathFinder.SearchPath(
             new Coord { x = (int)Mathf.Floor(mapStart.x), y = (int)Mathf.Floor(mapStart.y) },
@@ -94,7 +97,7 @@ public class UnitPathfinder : MonoBehaviour
         Vector2 offset = new Vector2(offsetMag, offsetMag); // So it is in the middle of the tiles
 
         // Convert map coords to world space and offset so they are in the middle of the squares (Or so, still working on it)
-        List<Vector2> vPath = cPath.Select(c => new Vector2(c.x, c.y) - halfSize + offset).ToList();
+        List<Vector2> vPath = cPath.Select(c => new Vector2(c.x, c.y) + offset).ToList();
 
         // Remove last point and replace it with the end
         vPath[vPath.Count - 1] = worldEnd;
