@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.LowLevel;
+using UnityEngine.InputSystem.Utilities;
 
 public enum UserInputType
 {
@@ -30,7 +32,7 @@ public class InputTracker : MonoBehaviour
     void Start()
     {
         InputQueue = new List<UserInput>();
-        
+
         var a = InputSystem.actions;
 
         //a.FindAction("Attack").performed += InputTracker_performed;
@@ -39,11 +41,44 @@ public class InputTracker : MonoBehaviour
 
         Debug.Log(InputActionMap.ToJson(InputSystem.actions.actionMaps));
 
+
+        InputSystem.onEvent.ForDevice(Keyboard.current).Call(HandleKeyboardRawEvent);
+
+
+
+    }
+    // Remove inputsystem onevent listiner when program closes
+    private void OnApplicationQuit()
+    {
+        //InputSystem.onEvent.
+    }
+
+
+    public void HandleKeyboardRawEvent(InputEventPtr eventPtr)
+    {
+        //var keyboardState = Keyboard.current.ReadValueFromEventAsObject(eventPtr);
+        //Debug.Log(keyboardState);
+
+        foreach (var a in eventPtr.GetAllButtonPresses())
+        {
+            Debug.Log(a.displayName);
+        }
+        //eventPtr.GetAllButtonPresses());
+        
+        //var keyState = Keyboard.current.pKey.ReadValueFromEvent(eventPtr);
+        //Debug.Log(keyState);
     }
 
     // Update is called once per frame
     void Update()
     {
+
+    }
+
+    private void InitializDefaultActions()
+    {
+        var gridBinds = new InputActionMap("GridBinds");
+
 
     }
 }
