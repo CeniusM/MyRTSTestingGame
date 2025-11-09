@@ -21,7 +21,7 @@ public class UserInput
 
     // Keyboard
     public Key KeyCode;
-    public bool WasPressed;
+    public bool IsPressed;
 
     // Mouse
     public Vector2 MouseClickPosition;
@@ -29,7 +29,10 @@ public class UserInput
 
     public override string ToString()
     {
-        return $"UserInput: {InputType} at {TimeStamp}";
+        if (InputType == UserInputType.KeyChange)
+            return $"[{TimeStamp:F3}] Key {KeyCode} {(IsPressed ? "Pressed" : "Released")}";
+        else
+            return $"[{TimeStamp:F3}] Mouse Click at {MouseClickPosition}";
     }
 }
 
@@ -72,7 +75,7 @@ public class InputTracker : MonoBehaviour
             LastFrameInputsHistory = _inputList.ToArray();
 
             // Hope this is right :)
-            Array.Sort(LastFrameInputsHistory, (x, y) => x.TimeStamp > y.TimeStamp ? 0 : 1);
+            Array.Sort(LastFrameInputsHistory, (x, y) => x.TimeStamp < y.TimeStamp ? -1 : 1);
 
             _inputList.Clear();
         }
@@ -108,30 +111,24 @@ public class InputTracker : MonoBehaviour
 
         foreach (var change in eventPtr.EnumerateChangedControls())
         {
-            KeyControl keyChange = change is KeyControl ? (KeyControl)change : null;
+            if (change is KeyControl keyControl)
+            {
+                AddUserInputEvent(new UserInput()
+                {
+                    InputType = UserInputType.KeyChange,
+                    TimeStamp = timeStamp,
+                    KeyCode = keyControl.keyCode,
+                    IsPressed= keyControl.magnitude == 0, // 0==down, 1==up
+                    //IsPressed = !keyControl.isPressed, // FOR SOME REASON INVERTED?
+                });
 
-            if (keyChange == null)
+                changesCount++;
+            }
+            else
             {
                 Debug.LogWarning("There was a keyboard change that did not involve a keycontrol");
                 continue;
             }
-
-            bool isPressed = keyChange.magnitude == 0; // 0 = down, 1 = up
-            Key kCode = keyChange.keyCode;
-
-            //string keyControlName = keyChange.name;
-            //string keyControlDisblayName = keyChange.displayName;
-            //Debug.Log($"isPressed: {isPressed} --- kCode: {kCode} --- keyControlName: {keyControlName} --- keyControlDisblayName: {keyControlDisblayName} ");
-
-            AddUserInputEvent(new UserInput()
-            {
-                InputType = UserInputType.KeyChange,
-                TimeStamp = timeStamp,
-                KeyCode = kCode,
-                WasPressed = isPressed
-            });
-
-            changesCount++;
         }
 
         if (changesCount > 1)
