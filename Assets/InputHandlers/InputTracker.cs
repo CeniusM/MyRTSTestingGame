@@ -19,20 +19,27 @@ public class UserInput
     public UserInputType InputType;
     public double TimeStamp;
 
-    // Keyboard
-    public Key KeyCode;
+    // General
     public bool IsPressed;
 
+    // Keyboard
+    public Key KeyCode;
+
     // Mouse
-    public Vector2 MouseClickPosition;
-    //public int
+    public Vector2 MousePosition;
+    public int MouseButton = -1; // -1=undefined, 0=Leftclick, 1=Middleclick, 2=Rightclick, 3=fowardbutton, 4=backwardsbutton
+    public string MouseButtonName = string.Empty;
+
+    public bool IsLeftClick => MouseButton == 0;
+    public bool IsMiddleClick => MouseButton == 1;
+    public bool IsRightClick => MouseButton == 2;
 
     public override string ToString()
     {
         if (InputType == UserInputType.KeyChange)
-            return $"[{TimeStamp:F3}] Key {KeyCode} {(IsPressed ? "Pressed" : "Released")}";
+            return $"[{TimeStamp:F3}] Key: {KeyCode} {(IsPressed ? "Pressed" : "Released")}";
         else
-            return $"[{TimeStamp:F3}] Mouse Click at {MouseClickPosition}";
+            return $"[{TimeStamp:F3}] Mouse: ({MouseButtonName}) {(IsPressed ? "Pressed" : "Released")} at {MousePosition}";
     }
 }
 
@@ -54,6 +61,7 @@ public class InputTracker : MonoBehaviour
         _inputList = new List<UserInput>();
 
         InputSystem.onEvent.ForDevice(Keyboard.current).Call(HandleKeyboardRawEvent);
+        InputSystem.onEvent.ForDevice(Mouse.current).Call(HandleMouseRawEvent);
     }
 
     // Update is called once per frame
@@ -118,7 +126,7 @@ public class InputTracker : MonoBehaviour
                     InputType = UserInputType.KeyChange,
                     TimeStamp = timeStamp,
                     KeyCode = keyControl.keyCode,
-                    IsPressed= keyControl.magnitude == 0, // 0==down, 1==up
+                    IsPressed = keyControl.magnitude == 0, // 0==down, 1==up
                     //IsPressed = !keyControl.isPressed, // FOR SOME REASON INVERTED?
                 });
 
@@ -133,5 +141,72 @@ public class InputTracker : MonoBehaviour
 
         if (changesCount > 1)
             Debug.LogWarning("There was somehow more than 1 event during the same timestamp");
+    }
+
+    private void HandleMouseRawEvent(InputEventPtr eventPtr)
+    {
+        if (!eventPtr.valid)
+        {
+            Debug.LogWarning("Some invalid keyboard event was given");
+            return;
+        }
+
+        bool hasPositionValue = Mouse.current.position.ReadUnprocessedValueFromEvent(eventPtr, out var mousePosition);
+
+        if (!hasPositionValue)
+        Debug.LogWarning("Mouse event aint got no position");
+
+        //if (eventPtr.type != new FourCC("STAT"))
+        //    return;
+
+        double timeStamp = eventPtr.time;
+
+        //Debug.Log("---" + eventPtr + "---");
+        foreach (var change in eventPtr.EnumerateChangedControls())
+        {
+            //Mouse.current.leftButton.ReadValueFromEventAsObject
+            //Debug.Log(change);
+
+
+            if (change is ButtonControl buttonControl)
+            {
+                //Debug.Log(buttonControl.name);
+                AddUserInputEvent(
+                    new UserInput()
+                    {
+                        InputType = UserInputType.MouseClick,
+                        TimeStamp = timeStamp,
+                        IsPressed = buttonControl.magnitude == 0,
+                        MousePosition = mousePosition,
+                        MouseButtonName = buttonControl.name,
+                        MouseButton = buttonControl.name switch
+                        {
+                            "leftButton" => 0,
+                            "middleButton" => 1,
+                            "rightButton" => 2,
+                            "forwardButton" => 3,
+                            "backButton" => 4,
+                            _ => throw new NotImplementedException("Unknow mouse button: " + buttonControl.shortDisplayName)
+                        }
+                    }
+                );
+            }
+
+
+
+            //Debug.Log(change);
+            //if (change.ToString().Contains("Button"))
+            //    Debug.Log("");
+            if (change is AxisControl axisControl)
+            {
+                //axisControl.
+                //Debug.Log("AxisControl: " + axisControl.path + ": " + axisControl.magnitude);
+            }
+
+            if (change is DeltaControl deltaControl)
+            {
+                //Debug.Log("DeltaControl");
+            }
+        }
     }
 }
