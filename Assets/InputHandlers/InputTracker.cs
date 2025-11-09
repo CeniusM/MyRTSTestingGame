@@ -53,6 +53,9 @@ public class InputTracker : MonoBehaviour
     // Accumulates each frame for game logic to use on each fixed update
     private List<UserInput> _inputList;
 
+    private IDisposable _keyboardObserver;
+    private IDisposable _mouseObserver;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -60,14 +63,20 @@ public class InputTracker : MonoBehaviour
 
         _inputList = new List<UserInput>();
 
-        InputSystem.onEvent.ForDevice(Keyboard.current).Call(HandleKeyboardRawEvent);
-        InputSystem.onEvent.ForDevice(Mouse.current).Call(HandleMouseRawEvent);
+        _keyboardObserver = InputSystem.onEvent.ForDevice(Keyboard.current).Call(HandleKeyboardRawEvent);
+        _mouseObserver = InputSystem.onEvent.ForDevice(Mouse.current).Call(HandleMouseRawEvent);
+    }
+
+    // Remove inputsystem onevent listiner when program closes
+    void OnApplicationQuit()
+    {
+        _keyboardObserver.Dispose();
+        _mouseObserver.Dispose();
     }
 
     // Update is called once per frame
     void Update()
     {
-
     }
 
     // This will run first, so all the other GameObjects can use the UserInputHistory
@@ -87,12 +96,6 @@ public class InputTracker : MonoBehaviour
 
             _inputList.Clear();
         }
-    }
-
-    // Remove inputsystem onevent listiner when program closes
-    private void OnApplicationQuit()
-    {
-        //InputSystem.onEvent.
     }
 
     public void AddUserInputEvent(UserInput evt)
@@ -154,7 +157,7 @@ public class InputTracker : MonoBehaviour
         bool hasPositionValue = Mouse.current.position.ReadUnprocessedValueFromEvent(eventPtr, out var mousePosition);
 
         if (!hasPositionValue)
-        Debug.LogWarning("Mouse event aint got no position");
+            Debug.LogWarning("Mouse event aint got no position");
 
         //if (eventPtr.type != new FourCC("STAT"))
         //    return;
