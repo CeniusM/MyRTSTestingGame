@@ -29,7 +29,7 @@
                 {
                     "name": "",
                     "id": "9a201095-a9cc-4b68-bde1-f7ac08b0cd79",
-                    "path": "<Keyboard>/w",
+                    "path": "<Keyboard>/space",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -40,7 +40,7 @@
                 {
                     "name": "",
                     "id": "d28c9d66-ede4-4a74-868b-396cb8562e8d",
-                    "path": "<Keyboard>/space",
+                    "path": "<Keyboard>/anyKey",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
