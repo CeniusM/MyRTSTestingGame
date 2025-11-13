@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.Tracing;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.Controls;
@@ -11,11 +10,13 @@ public enum UserInputType
 {
     KeyChange,
     MouseClick,
-    //MouseMovement
+    MouseMovement
 }
 
+// Can use abstraction, but like... idk
 public class UserInput
 {
+    // For all
     public UserInputType InputType;
     public double TimeStamp;
 
@@ -27,6 +28,8 @@ public class UserInput
 
     // Mouse
     public Vector2 MousePosition;
+    public Vector2 PrevMousePosition; // Tracked in InputTracker
+    public Vector2 MouseDelta => MousePosition - PrevMousePosition;
     public int MouseButton = -1; // -1=undefined, 0=Leftclick, 1=Middleclick, 2=Rightclick, 3=fowardbutton, 4=backwardsbutton
     public string MouseButtonName = string.Empty;
 
@@ -47,6 +50,9 @@ public class UserInput
 // When the next fixedframe starts, the game logic can get the current history and let a new one accumulate for next fixedframe
 public class InputTracker : MonoBehaviour
 {
+    // We get multible x and y positions independently, so we can just combine them all when they are in a streak between two button clicks
+    //[SerializeField] public bool CombineMouseMovements = true;
+
     // A collection of the userinputs from last frame. The history sorted from 0->first to N->last
     public UserInput[] LastFrameInputsHistory;
 
@@ -55,6 +61,8 @@ public class InputTracker : MonoBehaviour
 
     private IDisposable _keyboardObserver;
     private IDisposable _mouseObserver;
+
+    private Vector2 _savedMousePosition = -Vector2.one;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -154,33 +162,34 @@ public class InputTracker : MonoBehaviour
             return;
         }
 
-        bool hasPositionValue = Mouse.current.position.ReadUnprocessedValueFromEvent(eventPtr, out var mousePosition);
+        bool hasPositionValue = Mouse.current.position.ReadUnprocessedValueFromEvent(eventPtr, out var currentPosition);
 
         if (!hasPositionValue)
             Debug.LogWarning("Mouse event aint got no position");
+
+        Vector2 prevPosition = _savedMousePosition;
+
+        if (prevPosition == -Vector2.one) // No position has been saved yet
+            prevPosition = currentPosition;
 
         //if (eventPtr.type != new FourCC("STAT"))
         //    return;
 
         double timeStamp = eventPtr.time;
 
-        //Debug.Log("---" + eventPtr + "---");
         foreach (var change in eventPtr.EnumerateChangedControls())
         {
-            //Mouse.current.leftButton.ReadValueFromEventAsObject
-            //Debug.Log(change);
-
-
+            Debug.Log(change.GetType().FullName);
             if (change is ButtonControl buttonControl)
             {
-                //Debug.Log(buttonControl.name);
                 AddUserInputEvent(
                     new UserInput()
                     {
                         InputType = UserInputType.MouseClick,
                         TimeStamp = timeStamp,
                         IsPressed = buttonControl.magnitude == 0,
-                        MousePosition = mousePosition,
+                        MousePosition = currentPosition,
+                        PrevMousePosition = prevPosition,
                         MouseButtonName = buttonControl.name,
                         MouseButton = buttonControl.name switch
                         {
@@ -195,21 +204,21 @@ public class InputTracker : MonoBehaviour
                 );
             }
 
-
-
-            //Debug.Log(change);
-            //if (change.ToString().Contains("Button"))
-            //    Debug.Log("");
+            // Movement of the mouse? Onestly not sure how this works
+            // I hope i can just ignore the deltas, and use the position x and y
             if (change is AxisControl axisControl)
             {
+
                 //axisControl.
-                //Debug.Log("AxisControl: " + axisControl.path + ": " + axisControl.magnitude);
+                Debug.Log("AxisControl: " + axisControl.path + ": " + axisControl.magnitude);
             }
 
-            if (change is DeltaControl deltaControl)
-            {
-                //Debug.Log("DeltaControl");
-            }
+            //if (change is DeltaControl deltaControl)
+            //{
+            //    Debug.Log("DeltaControl");
+            //}
         }
+
+        _savedMousePosition = currentPosition;
     }
 }
