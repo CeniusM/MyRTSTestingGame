@@ -28,14 +28,15 @@ public class UserInput
 
     // Mouse
     public Vector2 MousePosition;
-    public Vector2 PrevMousePosition; // Tracked in InputTracker
-    public Vector2 MouseDelta => MousePosition - PrevMousePosition;
     public int MouseButton = -1; // -1=undefined, 0=Leftclick, 1=Middleclick, 2=Rightclick, 3=fowardbutton, 4=backwardsbutton
     public string MouseButtonName = string.Empty;
 
     public bool IsLeftClick => MouseButton == 0;
     public bool IsMiddleClick => MouseButton == 1;
     public bool IsRightClick => MouseButton == 2;
+
+    // Mouse movement
+    public Vector2 MouseDelta = Vector2.zero; // Only store on mouse movement
 
     public override string ToString()
     {
@@ -61,8 +62,6 @@ public class InputTracker : MonoBehaviour
 
     private IDisposable _keyboardObserver;
     private IDisposable _mouseObserver;
-
-    private Vector2 _savedMousePosition = -Vector2.one;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -167,19 +166,23 @@ public class InputTracker : MonoBehaviour
         if (!hasPositionValue)
             Debug.LogWarning("Mouse event aint got no position");
 
-        Vector2 prevPosition = _savedMousePosition;
-
-        if (prevPosition == -Vector2.one) // No position has been saved yet
-            prevPosition = currentPosition;
-
         //if (eventPtr.type != new FourCC("STAT"))
         //    return;
 
         double timeStamp = eventPtr.time;
 
+        // I guess instead of getting the delta from the changed controls, we just use this...
+        if (Mouse.current.delta.ReadUnprocessedValueFromEvent(eventPtr, out var mouseDeltaRecorded) && mouseDeltaRecorded.sqrMagnitude != 0)
+        {
+            // I guess we just add delta from here?
+            Debug.Log(mouseDeltaRecorded);
+        }
+
+        //Mouse.current.description.
+
         foreach (var change in eventPtr.EnumerateChangedControls())
         {
-            Debug.Log(change.GetType().FullName);
+            //Debug.Log(change.GetType().FullName);
             if (change is ButtonControl buttonControl)
             {
                 AddUserInputEvent(
@@ -189,7 +192,6 @@ public class InputTracker : MonoBehaviour
                         TimeStamp = timeStamp,
                         IsPressed = buttonControl.magnitude == 0,
                         MousePosition = currentPosition,
-                        PrevMousePosition = prevPosition,
                         MouseButtonName = buttonControl.name,
                         MouseButton = buttonControl.name switch
                         {
@@ -208,17 +210,12 @@ public class InputTracker : MonoBehaviour
             // I hope i can just ignore the deltas, and use the position x and y
             if (change is AxisControl axisControl)
             {
-
+                
                 //axisControl.
-                Debug.Log("AxisControl: " + axisControl.path + ": " + axisControl.magnitude);
+                //Debug.Log("AxisControl: " + axisControl.path + ": " + axisControl.magnitude);
             }
 
-            //if (change is DeltaControl deltaControl)
-            //{
-            //    Debug.Log("DeltaControl");
-            //}
+            //if (change is DeltaControl deltaControl) // Delta control is for both x and y? So it just gives Axis controls for both axises
         }
-
-        _savedMousePosition = currentPosition;
     }
 }
