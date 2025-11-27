@@ -3,12 +3,12 @@ using UnityEngine;
 // This is where the main logic of the game comes from
 public class WorldManager : MonoBehaviour
 {
-    private InputTracker _inputTracker;
+    private FrameInputTracker _inputTracker;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        _inputTracker = FindAnyObjectByType<InputTracker>();
+        _inputTracker = FindAnyObjectByType<FrameInputTracker>();
 
         if (_inputTracker == null)
         {
@@ -30,7 +30,7 @@ public class WorldManager : MonoBehaviour
         var inputs = _inputTracker.LastFrameInputsHistory;
 
         if (inputs.Length > 0)
-        {
+        {   
             Debug.Log("Frame Input Events:");
             foreach (var input in inputs)
             {

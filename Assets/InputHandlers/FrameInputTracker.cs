@@ -42,14 +42,18 @@ public class UserInput
     {
         if (InputType == UserInputType.KeyChange)
             return $"[{TimeStamp:F3}] Key: {KeyCode} {(IsPressed ? "Pressed" : "Released")}";
-        else
+        else if (InputType == UserInputType.MouseClick)
             return $"[{TimeStamp:F3}] Mouse: ({MouseButtonName}) {(IsPressed ? "Pressed" : "Released")} at {MousePosition}";
+        else if (InputType == UserInputType.MouseMovement)
+            return $"[{TimeStamp:F3}] MouseDelta: ({MouseDelta}) to {MousePosition}";
+        else
+            return "Undefined UserInput";
     }
 }
 
 // We get all the inputs so that the game logic can run through all the events since the last fixedframe such that we dont drop any inputs
 // When the next fixedframe starts, the game logic can get the current history and let a new one accumulate for next fixedframe
-public class InputTracker : MonoBehaviour
+public class FrameInputTracker : MonoBehaviour
 {
     // We get multible x and y positions independently, so we can just combine them all when they are in a streak between two button clicks
     //[SerializeField] public bool CombineMouseMovements = true;
@@ -175,7 +179,18 @@ public class InputTracker : MonoBehaviour
         if (Mouse.current.delta.ReadUnprocessedValueFromEvent(eventPtr, out var mouseDeltaRecorded) && mouseDeltaRecorded.sqrMagnitude != 0)
         {
             // I guess we just add delta from here?
-            Debug.Log(mouseDeltaRecorded);
+            //Debug.Log(mouseDeltaRecorded);
+
+            AddUserInputEvent(
+                new UserInput()
+                {
+                    InputType = UserInputType.MouseMovement,
+                    TimeStamp = timeStamp,
+                    IsPressed = false, // Not really pressed or released
+                    MousePosition = currentPosition,
+                    MouseDelta = mouseDeltaRecorded
+                }
+            );
         }
 
         //Mouse.current.description.
