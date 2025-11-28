@@ -56,7 +56,7 @@ public class UserInput
 public class FrameInputTracker : MonoBehaviour
 {
     // We get multible x and y positions independently, so we can just combine them all when they are in a streak between two button clicks
-    //[SerializeField] public bool CombineMouseMovements = true;
+    [SerializeField] public bool CombineMouseMovements = false;
 
     // A collection of the userinputs from last frame. The history sorted from 0->first to N->last
     public UserInput[] LastFrameInputsHistory;
@@ -113,7 +113,24 @@ public class FrameInputTracker : MonoBehaviour
     {
         lock (this)
         {
-            _inputList.Add(evt);
+            // Option to combine mouse movements into one event
+            // I dont think this will work since the array userinputs is not sorted by timestamps yet
+            if (CombineMouseMovements &&
+                _inputList.Count > 0 &&
+                evt.InputType == UserInputType.MouseMovement &&
+                _inputList[_inputList.Count - 1].InputType == UserInputType.MouseMovement)
+            {
+                // Works as long as the UserInput is class ref type
+                var prevEvt = _inputList[_inputList.Count - 1];
+
+                prevEvt.TimeStamp = evt.TimeStamp;
+                prevEvt.MouseDelta += evt.MouseDelta;
+                prevEvt.MousePosition = evt.MousePosition;
+            }
+            else
+            {
+                _inputList.Add(evt);
+            }
         }
     }
 
@@ -225,7 +242,7 @@ public class FrameInputTracker : MonoBehaviour
             // I hope i can just ignore the deltas, and use the position x and y
             if (change is AxisControl axisControl)
             {
-                
+
                 //axisControl.
                 //Debug.Log("AxisControl: " + axisControl.path + ": " + axisControl.magnitude);
             }

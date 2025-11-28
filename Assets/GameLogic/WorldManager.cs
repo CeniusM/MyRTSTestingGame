@@ -30,10 +30,11 @@ public class WorldManager : MonoBehaviour
         var inputs = _inputTracker.LastFrameInputsHistory;
 
         if (inputs.Length > 0)
-        {   
+        {
             Debug.Log("Frame Input Events:");
             foreach (var input in inputs)
             {
+                //if (input.InputType == UserInputType.MouseMovement)
                 Debug.Log(" * " + input);
             }
         }
