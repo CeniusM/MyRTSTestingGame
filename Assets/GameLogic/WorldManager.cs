@@ -91,22 +91,3 @@ public class WorldManager : MonoBehaviour
     public void ClickedAt(Vector2 position, MouseButtonType button) { }
     public void KeyChanged(KeyCode key, bool isPressed, Vector2 mousePosition) { }
 }
-
-
-
-
-//// Test UserInputs
-//if (_inputTracker == null || _inputTracker.LastFrameInputsHistory == null)
-//    return;
-
-//var inputs = _inputTracker.LastFrameInputsHistory;
-
-////if (inputs.Length > 0)
-////{
-////    Debug.Log("Frame Input Events:");
-////    foreach (var input in inputs)
-////    {
-////        //if (input.InputType == UserInputType.MouseMovement)
-////        Debug.Log(" * " + input);
-////    }
-////}

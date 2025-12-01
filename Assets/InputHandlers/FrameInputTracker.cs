@@ -208,9 +208,6 @@ public class FrameInputTracker : MonoBehaviour
         // I guess instead of getting the delta from the changed controls, we just use this...
         if (Mouse.current.delta.ReadUnprocessedValueFromEvent(eventPtr, out var mouseDeltaRecorded) && mouseDeltaRecorded.sqrMagnitude != 0)
         {
-            // I guess we just add delta from here?
-            //Debug.Log(mouseDeltaRecorded);
-
             AddUserInputEvent(
                 new UserInput()
                 {
@@ -222,8 +219,6 @@ public class FrameInputTracker : MonoBehaviour
                 }
             );
         }
-
-        //Mouse.current.description.
 
         foreach (var change in eventPtr.EnumerateChangedControls())
         {
@@ -250,17 +245,6 @@ public class FrameInputTracker : MonoBehaviour
                     }
                 );
             }
-
-            // Movement of the mouse? Onestly not sure how this works
-            // I hope i can just ignore the deltas, and use the position x and y
-            if (change is AxisControl axisControl)
-            {
-
-                //axisControl.
-                //Debug.Log("AxisControl: " + axisControl.path + ": " + axisControl.magnitude);
-            }
-
-            //if (change is DeltaControl deltaControl) // Delta control is for both x and y? So it just gives Axis controls for both axises
         }
     }
 }

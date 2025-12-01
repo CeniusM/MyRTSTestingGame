@@ -1,6 +1,7 @@
 // Could use a class like this to translate the user inputs to something the game world could use
 // But for now the WorldManager takes care of it all
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class UserInputInterpreter
 {
@@ -20,6 +21,8 @@ public class UserInputInterpreter
 
     public Vector2 dragStartPos = Vector2.negativeInfinity;
     public bool isDragging => dragStartPos != Vector2.negativeInfinity;
+
+    public bool isShiftDown = false;
 
     // Settings
     public float dragThreshold = 5f; // How long the mouse has to move while pressed to start a drag
@@ -84,5 +87,9 @@ public class UserInputInterpreter
 
     private void HandleKeyChange(UserInput input)
     {
+        if (input.KeyCode == Key.LeftShift || input.KeyCode == Key.RightShift)
+        {
+            isShiftDown = input.IsPressed;
+        }
     }
 }
