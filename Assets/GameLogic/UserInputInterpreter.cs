@@ -15,8 +15,14 @@ public class UserInputInterpreter
         this.playerData = playerData;
     }
 
-    public Vector2 dragStartPos = new Vector2();
-    public bool isDragging = false;
+    // State
+    public Vector2 lastMousePos = new Vector2();
+
+    public Vector2 dragStartPos = Vector2.negativeInfinity;
+    public bool isDragging => dragStartPos != Vector2.negativeInfinity;
+
+    // Settings
+    public float dragThreshold = 5f; // How long the mouse has to move while pressed to start a drag
 
     // Called at the start of each FixedUpdate in WorldManager
     public void InterpretInput()
@@ -25,7 +31,58 @@ public class UserInputInterpreter
 
         foreach (var input in inputs)
         {
-
+            if (input.InputType == UserInputType.MouseClick)
+                HandleMouseClick(input);
+            else if (input.InputType == UserInputType.MouseMovement)
+                HandleMouseMovement(input);
+            else if (input.InputType == UserInputType.KeyChange)
+                HandleKeyChange(input);
         }
+    }
+
+    private void HandleMouseClick(UserInput input)
+    {
+        if (input.IsPressed)
+        {
+            if (input.MouseButton == MouseButtonType.LeftClick)
+            {
+                dragStartPos = input.MousePosition;
+            }
+            else if (input.MouseButton == MouseButtonType.RightClick)
+            {
+                // Right click action
+                worldManager.ClickedAt(input.MousePosition, input.MouseButton);
+            }
+        }
+        else
+        {
+            if (isDragging)
+            {
+                float dragDistance = Vector2.Distance(dragStartPos, input.MousePosition);
+                if (dragDistance >= dragThreshold)
+                {
+                    // End drag action
+                    worldManager.FinishedDrag(dragStartPos, input.MousePosition);
+                }
+                else
+                {
+                    // It was just a click, not a drag
+                    worldManager.ClickedAt(input.MousePosition, input.MouseButton);
+                }
+            }
+        }
+
+        lastMousePos = input.MousePosition;
+    }
+
+    private void HandleMouseMovement(UserInput input)
+    {
+
+
+        lastMousePos = input.MousePosition;
+    }
+
+    private void HandleKeyChange(UserInput input)
+    {
     }
 }

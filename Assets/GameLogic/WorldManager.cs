@@ -85,6 +85,11 @@ public class WorldManager : MonoBehaviour
             DrawScreenRectBorder(rect, 2, Color.green);
         }
     }
+
+    // From the UserInputInterpreter
+    public void FinishedDrag(Vector2 start, Vector2 end) { }
+    public void ClickedAt(Vector2 position, MouseButtonType button) { }
+    public void KeyChanged(KeyCode key, bool isPressed, Vector2 mousePosition) { }
 }
 
 

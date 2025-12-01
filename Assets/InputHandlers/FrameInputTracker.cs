@@ -13,6 +13,16 @@ public enum UserInputType
     MouseMovement
 }
 
+public enum MouseButtonType
+{
+    Undefined = -1,
+    LeftClick = 0,
+    MiddleClick,
+    RightClick,
+    ForwardButton,
+    BackButton
+}
+
 // Can use abstraction, but like... idk
 public class UserInput
 {
@@ -28,12 +38,12 @@ public class UserInput
 
     // Mouse
     public Vector2 MousePosition;
-    public int MouseButton = -1; // -1=undefined, 0=Leftclick, 1=Middleclick, 2=Rightclick, 3=fowardbutton, 4=backwardsbutton
+    public MouseButtonType MouseButton = MouseButtonType.Undefined;
     public string MouseButtonName = string.Empty;
 
-    public bool IsLeftClick => MouseButton == 0;
-    public bool IsMiddleClick => MouseButton == 1;
-    public bool IsRightClick => MouseButton == 2;
+    public bool IsLeftClick => MouseButton == MouseButtonType.LeftClick;
+    public bool IsMiddleClick => MouseButton == MouseButtonType.MiddleClick;
+    public bool IsRightClick => MouseButton == MouseButtonType.RightClick;
 
     // Mouse movement
     public Vector2 MouseDelta = Vector2.zero; // Only store on mouse movement
@@ -185,7 +195,10 @@ public class FrameInputTracker : MonoBehaviour
         bool hasPositionValue = Mouse.current.position.ReadUnprocessedValueFromEvent(eventPtr, out var currentPosition);
 
         if (!hasPositionValue)
+        {
             Debug.LogWarning("Mouse event aint got no position");
+            currentPosition = Mouse.current.position.ReadValue();
+        }
 
         //if (eventPtr.type != new FourCC("STAT"))
         //    return;
@@ -227,11 +240,11 @@ public class FrameInputTracker : MonoBehaviour
                         MouseButtonName = buttonControl.name,
                         MouseButton = buttonControl.name switch
                         {
-                            "leftButton" => 0,
-                            "middleButton" => 1,
-                            "rightButton" => 2,
-                            "forwardButton" => 3,
-                            "backButton" => 4,
+                            "leftButton" => MouseButtonType.LeftClick,
+                            "middleButton" => MouseButtonType.MiddleClick,
+                            "rightButton" => MouseButtonType.RightClick,
+                            "forwardButton" => MouseButtonType.ForwardButton,
+                            "backButton" => MouseButtonType.BackButton,
                             _ => throw new NotImplementedException("Unknow mouse button: " + buttonControl.shortDisplayName)
                         }
                     }
