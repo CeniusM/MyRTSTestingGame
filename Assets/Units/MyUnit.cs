@@ -4,6 +4,7 @@ public class MyUnit : BaseUnit
 {
     public override void MoveTowards(Vector2 destination)
     {
+        // can also check for collision with obstacles here later
         transform.position = Vector2.MoveTowards(transform.position, destination, Attributes.MoveSpeed * Time.deltaTime);
 
         //Debug.Log($"Unit moved to {destination}");
@@ -31,7 +32,10 @@ public class MyUnit : BaseUnit
             spriteRenderer.color = Color.red;
         else
             spriteRenderer.color = Color.white;
+    }
 
+    private void FixedUpdate()
+    {
         // Move to fixed later
         HandleCommand();
     }
